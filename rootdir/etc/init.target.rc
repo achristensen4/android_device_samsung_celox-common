@@ -84,7 +84,7 @@ on post-fs-data
     mkdir /system/etc/firmware/misc 0771 system system
     mkdir /system/etc/firmware/misc_mdm 0771 system system
     exec /system/bin/sh /system/etc/init.qcom.modem_links.sh
-    mount ext4 /dev/block/mmcblk0p24 /system remount ro barrier=0
+    mount ext4 /dev/block/mmcblk0p24 /system remount rw nosuid nodev barrier=1
 
     write /sys/devices/i2c-0/0-0024/cyttsp_update_fw 1
 
@@ -244,7 +244,7 @@ on post-fs-data
 # Define TCP buffer sizes for various networks
 #   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
     setprop net.tcp.buffersize.default 4096,87380,110208,4096,16384,110208
-#    setprop net.tcp.buffersize.wifi    524288,1048576,2097152,262144,524288,1048576
+    setprop net.tcp.buffersize.wifi    524288,1048576,2097152,262144,524288,1048576
     setprop net.tcp.buffersize.wifi    4095,131072,196608,4096,16384,110208
     setprop net.tcp.buffersize.lte     4094,87380,2560000,4096,16384,1220608
     setprop net.tcp.buffersize.umts    4094,87380,196608,4096,16384,110208
@@ -279,7 +279,7 @@ on post-fs-data
     copy /data/data/com.sec.android.providers.drm/databases/drmdatabase.db /data/system/databases/drmdatabase.db
     chown system system /data/system/databases/drmdatabase.db
     chmod 0774 /data/system/databases/drmdatabase.db
-    # ]
+    
     #DRM directory creation
     mkdir /system/etc/security/.drm 0775
     chown root root /system/etc/security/.drm
@@ -297,6 +297,7 @@ on post-fs-data
     mkdir /system/lib/drm 0775
     chown root root /system/lib/drm
     chmod 0775 /system/lib/drm
+    
     #SISO-PLAYREADY-CHANGES
     # DivX DRM
     mkdir /efs/.files 0775
@@ -348,7 +349,6 @@ service secril-daemon /system/bin/sec-ril
 
 service kickstart /system/bin/qcks l
     oneshot
-    disabled
 
 # Start kickstart if csfb or svlte2a target
 on property:ro.baseband=csfb
@@ -366,26 +366,21 @@ on property:ro.baseband=svlte2a
 service modem_link /system/bin/sh /system/etc/init.qcom.modem_links.sh
     class main
     user root
-    disabled
     oneshot
 
 service dcvsd0 /system/bin/dcvsd -c 0 -f /data/misc/dcvsd/dcvsd0.conf
     user root
-    disabled
 
 service dcvsd1 /system/bin/dcvsd -c 1 -f /data/misc/dcvsd/dcvsd1.conf
     user root
-    disabled
 
 service mpdecision /system/bin/mpdecision --no_sleep --avg_comp
     user root
-    disabled
 
 service thermald /system/bin/thermald
     class main
     user root
     group root
-    disabled
 
 on property.ro.modem.links.done=1
     start thermald
